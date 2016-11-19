@@ -2,14 +2,18 @@ package me.crypnotic.oskar.managers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-import com.google.common.base.Optional;
-
-import de.btobastian.javacord.entities.message.Message;
 import me.crypnotic.oskar.objects.ICommand;
+import me.crypnotic.oskar.objects.commands.JoinCommand;
 import me.crypnotic.oskar.objects.commands.KickCommand;
-import me.crypnotic.oskar.objects.commands.PurgeCommand;
+import me.crypnotic.oskar.objects.commands.LeaveCommand;
+import me.crypnotic.oskar.objects.commands.PauseCommand;
+import me.crypnotic.oskar.objects.commands.PlayCommand;
+import me.crypnotic.oskar.objects.commands.SkipCommand;
+import me.crypnotic.oskar.objects.commands.VolumeCommand;
 import me.crypnotic.oskar.utilities.Multisets;
+import sx.blah.discord.handle.obj.IMessage;
 
 public class CommandManager {
 
@@ -20,16 +24,29 @@ public class CommandManager {
 	}
 
 	public void init() {
+		commands.put("join", new JoinCommand());
 		commands.put("kick", new KickCommand());
-		commands.put("purge", new PurgeCommand());
+		commands.put("leave", new LeaveCommand());
+		commands.put("pause", new PauseCommand());
+		commands.put("play", new PlayCommand());
+		commands.put("skip", new SkipCommand());
+		commands.put("volume", new VolumeCommand());
 	}
 
-	public void handle(Message message, String[] data) {
+	public void handle(IMessage message, String[] data) {
 		Optional<ICommand> result = getCommand(data[0].toLowerCase());
 		if (result.isPresent()) {
-			result.get().execute(message, Multisets.transform(data, 1), System.currentTimeMillis());
+			try {
+				result.get().execute(message, Multisets.transform(data, 1), System.currentTimeMillis());
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
 		} else {
-			message.reply("Unknown command : " + data[0]);
+			try {
+				message.reply("Unknown command : " + data[0]);
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
 		}
 	}
 
@@ -38,6 +55,6 @@ public class CommandManager {
 		if (command != null) {
 			return Optional.of(command);
 		}
-		return Optional.absent();
+		return Optional.empty();
 	}
 }
