@@ -44,14 +44,6 @@ public class PlayCommand implements ICommand {
 				} else {
 					message.reply("command usage: `.play (youtube link)`");
 				}
-				// if
-				// (name.equals("pleasedontactuallycallmeinproductionforiamjustatest"))
-				// {
-				// File file = new
-				// File(oskar.getDirectory().get().getParentFile(), "test.mp3");
-				// oskar.getVoiceManager().play(message, Optional.of(file));
-				// oskar.getVoiceManager().setVolume(message.getGuild(), 25f);
-				// }
 			} else {
 				message.reply("command usage: `/play (link)`");
 			}
