@@ -30,6 +30,7 @@ public class LeaveCommand implements ICommand {
 					names.add(channel.getName());
 				}
 			});
+			oskar.getVoiceManager().stop(message.getGuild());
 			if (names.size() > 0) {
 				message.reply("channels left: `" + Multisets.join(names) + "`");
 			} else {
