@@ -8,7 +8,8 @@ import me.crypnotic.oskar.Oskar;
 import me.crypnotic.oskar.OskarBootstrap;
 import me.crypnotic.oskar.objects.ICommand;
 import me.crypnotic.oskar.objects.constants.Outcome;
-import me.crypnotic.oskar.objects.download.DownloadRequest;
+import me.crypnotic.oskar.objects.download.request.PlaylistDownloadRequest;
+import me.crypnotic.oskar.objects.download.request.VideoDownloadRequest;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -31,23 +32,16 @@ public class PlayCommand implements ICommand {
 				if (matcher.matches()) {
 					String type = matcher.group(4).toLowerCase();
 					String videoId = matcher.group(5);
-					oskar.getDownloadManager()
-							.place(new DownloadRequest(videoId, type.contains("playlist"), (result) -> {
-								if (result.getOutcome().isSuccessful() && result.getValue().isPresent()) {
-									oskar.getVoiceManager().play(message, result.getValue());
-								} else {
-									try {
-										message.reply("failed to download video `" + result.getVideoId() + "`");
-									} catch (Exception exception) {
-										exception.printStackTrace();
-									}
-								}
-							}));
+					if (type.contains("playlist")) {
+						oskar.getDownloadManager().place(new PlaylistDownloadRequest(videoId, message));
+					} else {
+						oskar.getDownloadManager().place(new VideoDownloadRequest(videoId, message));
+					}
 				} else {
 					message.reply("command usage: `.play (youtube link)`");
 				}
 			} else {
-				message.reply("command usage: `/play (link)`");
+				message.reply("command usage: `.play (youtube link)`");
 			}
 		} else {
 			message.reply("I am not currently connected to any voice channels in this guild.");

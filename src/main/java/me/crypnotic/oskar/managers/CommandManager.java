@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import me.crypnotic.oskar.objects.ICommand;
+import me.crypnotic.oskar.objects.commands.ClearCommand;
 import me.crypnotic.oskar.objects.commands.JoinCommand;
 import me.crypnotic.oskar.objects.commands.KickCommand;
 import me.crypnotic.oskar.objects.commands.LeaveCommand;
@@ -24,6 +25,7 @@ public class CommandManager {
 	}
 
 	public void init() {
+		commands.put("clear", new ClearCommand());
 		commands.put("join", new JoinCommand());
 		commands.put("kick", new KickCommand());
 		commands.put("leave", new LeaveCommand());

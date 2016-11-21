@@ -19,7 +19,7 @@ public class SkipCommand implements ICommand {
 	public Outcome execute(IMessage message, List<String> arguments, Long timestamp)
 			throws MissingPermissionsException, RateLimitException, DiscordException {
 		if (oskar.getDiscord().getConnectedVoiceChannels().size() > 0) {
-			oskar.getVoiceManager().skip(message);
+			oskar.getVoiceManager().skip(message.getGuild());
 		} else {
 			message.reply("I am not currently connected to any voice channels in this guild.");
 		}

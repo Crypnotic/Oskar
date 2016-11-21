@@ -23,8 +23,11 @@ public class VolumeCommand implements ICommand {
 				String data = arguments.get(0);
 				if (data.matches("^\\d*\\.?\\d*$")) {
 					Float volume = Float.parseFloat(data);
-					oskar.getVoiceManager().setVolume(message.getGuild(),
+					Outcome outcome = oskar.getVoiceManager().setVolume(message.getGuild(),
 							(volume) >= 100 ? 100 : (volume) <= 0 ? 0 : volume);
+					if (outcome.getMessage().isPresent()) {
+						message.reply(outcome.getMessage().get());
+					}
 				} else {
 					message.reply("command usage: `.volume (1-100)`");
 				}

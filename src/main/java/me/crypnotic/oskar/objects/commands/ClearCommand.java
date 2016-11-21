@@ -11,7 +11,7 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
-public class PauseCommand implements ICommand {
+public class ClearCommand implements ICommand {
 
 	private Oskar oskar = OskarBootstrap.getOskar();
 
@@ -19,7 +19,7 @@ public class PauseCommand implements ICommand {
 	public Outcome execute(IMessage message, List<String> arguments, Long timestamp)
 			throws MissingPermissionsException, RateLimitException, DiscordException {
 		if (oskar.getDiscord().getConnectedVoiceChannels().size() > 0) {
-			Outcome outcome = oskar.getVoiceManager().pause(message.getGuild());
+			Outcome outcome = oskar.getVoiceManager().clear(message.getGuild());
 			if (outcome.getMessage().isPresent()) {
 				message.reply(outcome.getMessage().get());
 			}
