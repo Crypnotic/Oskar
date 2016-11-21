@@ -1,10 +1,6 @@
 package me.crypnotic.oskar.managers;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +15,7 @@ import me.crypnotic.oskar.objects.OskarCallback;
 import me.crypnotic.oskar.objects.constants.Outcome;
 import me.crypnotic.oskar.objects.download.DownloadRequest;
 import me.crypnotic.oskar.objects.download.DownloadResponse;
-import me.crypnotic.oskar.utilities.Files;
-import me.crypnotic.oskar.utilities.Streams;
+import me.crypnotic.oskar.utilities.Interwebs;
 
 public class DownloadManager {
 
@@ -62,52 +57,15 @@ public class DownloadManager {
 										exception.printStackTrace();
 										continue downloads;
 									}
-								}
-								File output = new File(cache.get(), request.getVideoId() + ".mp3");
-								if (output.exists()) {
-									request.getCallback().call(new DownloadResponse(request.getVideoId(),
-											Optional.of(output), Outcome.SUCCESSFUL));
-									requests.remove(request);
-									continue downloads;
-								}
-								try {
-									URL url = new URL(DOWNLOAD + request.getVideoId());
-									HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-									if (connection.getResponseCode() != 200) {
+								} else {
+									File output = new File(cache.get(), request.getVideoId() + ".mp3");
+									Optional<File> file = Interwebs.download(DOWNLOAD + request.getVideoId(), output);
+									if (file.isPresent()) {
+										request.getCallback().call(new DownloadResponse(request.getVideoId(),
+												Optional.of(output), Outcome.SUCCESSFUL));
+										requests.remove(request);
 										continue downloads;
 									}
-									BufferedInputStream input = new BufferedInputStream(connection.getInputStream());
-									FileOutputStream target = new FileOutputStream(output);
-									long size = connection.getContentLength();
-									long downloaded = 0L;
-									int length = -1;
-									byte[] buffer = new byte[1024];
-									while ((length = input.read(buffer)) > -1) {
-										target.write(buffer, 0, length);
-										downloaded += length;
-									}
-									if (input != null) {
-										input.close();
-									}
-									if (output != null) {
-										target.close();
-									}
-
-									if (output.exists()) {
-										if (downloaded == size) {
-											request.getCallback().call(new DownloadResponse(request.getVideoId(),
-													Optional.of(output), Outcome.SUCCESSFUL));
-											requests.remove(request);
-											continue downloads;
-										} else {
-											Files.delete(output);
-											requests.remove(request);
-											continue downloads;
-										}
-									}
-								} catch (Exception exception) {
-									exception.printStackTrace();
-									continue downloads;
 								}
 							} catch (Exception exception) {
 								exception.printStackTrace();
@@ -139,7 +97,7 @@ public class DownloadManager {
 	private List<DownloadRequest> getPlaylistVideos(String playlistId, OskarCallback<DownloadResponse> callback)
 			throws Exception {
 		List<DownloadRequest> results = new ArrayList<DownloadRequest>();
-		Optional<String> data = Streams.read(PLAYLIST + playlistId);
+		Optional<String> data = Interwebs.read(PLAYLIST + playlistId);
 		if (!data.isPresent()) {
 			return results;
 		}
@@ -155,11 +113,12 @@ public class DownloadManager {
 		if (json.get("nextPageToken") != null) {
 			String token = json.getString("nextPageToken");
 			while (token != null && !json.getString("nextPageToken").equals(token)) {
-				data = Streams.read(PLAYLIST + playlistId + "&nextPageToken=" + json.getString("nextPageToken"));
+				data = Interwebs.read(PLAYLIST + playlistId + "&pageToken=" + json.getString("nextPageToken"));
 				if (!data.isPresent()) {
 					return results;
 				}
 				json = new JSONObject(new JSONTokener(data.get()));
+				token = json.getString("nextPageToken");
 				items = json.getJSONArray("items");
 				for (int i = 0; i < items.length(); i++) {
 					JSONObject object = items.getJSONObject(i);
