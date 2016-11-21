@@ -2,8 +2,6 @@ package me.crypnotic.oskar.managers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -14,19 +12,8 @@ import sx.blah.discord.util.audio.AudioPlayer;
 
 public class VoiceManager {
 
-	private Map<IGuild, AudioPlayer> players;
-
-	public VoiceManager() {
-		this.players = new HashMap<IGuild, AudioPlayer>();
-	}
-
 	public synchronized AudioPlayer getAudioPlayer(IGuild guild) {
-		AudioPlayer player = players.get(guild);
-		if (player == null) {
-			player = AudioPlayer.getAudioPlayerForGuild(guild);
-			players.put(guild, player);
-		}
-		return player;
+		return AudioPlayer.getAudioPlayerForGuild(guild);
 	}
 
 	public Outcome play(IGuild guild, Optional<File> audio) {
@@ -60,7 +47,7 @@ public class VoiceManager {
 	public Outcome setVolume(IGuild guild, Float volume) {
 		AudioPlayer player = getAudioPlayer(guild);
 		player.setVolume((volume > 1) ? volume / 100 : volume);
-		return Outcome.SUCCESSFUL.setMessage("volume changed to %d%", volume);
+		return Outcome.SUCCESSFUL.setMessage("volume changed to `%d%`", volume.doubleValue());
 	}
 
 	public Outcome pause(IGuild guild) {
@@ -82,6 +69,6 @@ public class VoiceManager {
 	public void stop(IGuild guild) {
 		AudioPlayer player = getAudioPlayer(guild);
 		player.setPaused(true);
-		players.remove(guild, player);
+		player.clean();
 	}
 }

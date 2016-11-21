@@ -16,7 +16,7 @@ public enum Outcome {
 	}
 
 	public Outcome setMessage(String message, Object... values) {
-		this.message = String.format(message, values);
+		this.message = String.format(message.replaceAll("\\%(?![a-zA-Z])", "%%"), values);
 		return this;
 	}
 
