@@ -47,7 +47,7 @@ public class VoiceManager {
 	public Outcome setVolume(IGuild guild, Float volume) {
 		AudioPlayer player = getAudioPlayer(guild);
 		player.setVolume((volume > 1) ? volume / 100 : volume);
-		return Outcome.SUCCESSFUL.setMessage("volume changed to `%d%`", volume.doubleValue());
+		return Outcome.SUCCESSFUL.setMessage("volume changed to `%d%`", volume.intValue());
 	}
 
 	public Outcome pause(IGuild guild) {
