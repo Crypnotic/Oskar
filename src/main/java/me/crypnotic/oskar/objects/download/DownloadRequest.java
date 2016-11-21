@@ -9,6 +9,11 @@ public class DownloadRequest {
 
 	@Getter(lombok.AccessLevel.PUBLIC)
 	private String videoId;
+	private Boolean playlist;
 	@Getter(lombok.AccessLevel.PUBLIC)
 	private OskarCallback<DownloadResponse> callback;
+
+	public Boolean isPlaylist() {
+		return playlist;
+	}
 }

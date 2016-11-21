@@ -25,22 +25,24 @@ public class PlayCommand implements ICommand {
 			if (arguments.size() > 0) {
 				String name = arguments.get(0);
 				Pattern pattern = Pattern.compile(
-						"^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|v\\/)?)([\\w\\-]+)(\\S+)?$",
+						"^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+(?:\\?v=|\\?list=)|embed\\/|v\\/)?)([\\w\\-]+)(\\S+)?$",
 						Pattern.CASE_INSENSITIVE);
 				Matcher matcher = pattern.matcher(name);
 				if (matcher.matches()) {
+					String type = matcher.group(4).toLowerCase();
 					String videoId = matcher.group(5);
-					oskar.getDownloadManager().place(new DownloadRequest(videoId, (result) -> {
-						if (result.getOutcome().isSuccessful() && result.getValue().isPresent()) {
-							oskar.getVoiceManager().play(message, result.getValue());
-						} else {
-							try {
-								message.reply("failed to download video `" + result.getVideoId() + "`");
-							} catch (Exception exception) {
-								exception.printStackTrace();
-							}
-						}
-					}));
+					oskar.getDownloadManager()
+							.place(new DownloadRequest(videoId, type.contains("playlist"), (result) -> {
+								if (result.getOutcome().isSuccessful() && result.getValue().isPresent()) {
+									oskar.getVoiceManager().play(message, result.getValue());
+								} else {
+									try {
+										message.reply("failed to download video `" + result.getVideoId() + "`");
+									} catch (Exception exception) {
+										exception.printStackTrace();
+									}
+								}
+							}));
 				} else {
 					message.reply("command usage: `.play (youtube link)`");
 				}
