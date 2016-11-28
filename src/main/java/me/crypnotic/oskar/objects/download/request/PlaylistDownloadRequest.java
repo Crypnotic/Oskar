@@ -51,11 +51,11 @@ public class PlaylistDownloadRequest implements IDownloadRequest {
 
 		try {
 			if (successes.size() > 0) {
-				message.reply(String.format("`%d` tracks were queued: %s", successes.size(),
+				message.reply(String.format("`%d` tracks were queued: ```%s```", successes.size(),
 						Multisets.join(successes, ", ")));
 			}
 			if (failures.size() > 0) {
-				message.reply(String.format("`%d` tracks could not be queued: %s", failures.size(),
+				message.reply(String.format("`%d` tracks could not be queued: ```%s```", failures.size(),
 						Multisets.join(failures, ", ")));
 			}
 		} catch (Exception exception) {

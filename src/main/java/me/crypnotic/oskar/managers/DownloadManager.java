@@ -20,7 +20,7 @@ import me.crypnotic.oskar.utilities.Interwebs;
 public class DownloadManager {
 
 	private static final String DOWNLOAD = "http://www.youtubeinmp3.com/fetch/?bitrate=96&video=https://www.youtube.com/watch?v=";
-	private static final String PLAYLIST = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&key=AIzaSyCg3WitBUQl5ifC2QygQaZUPOSRMKfSD5E&maxResults=50&playlistId=";
+	private static final String PLAYLIST = "http://localhost/playlist.php?id=";
 
 	private Oskar oskar = OskarBootstrap.getOskar();
 
@@ -49,7 +49,8 @@ public class DownloadManager {
 						downloads: for (IDownloadRequest request : clone) {
 							try {
 								if (request.isPlaylist()) {
-									request.getMessage().reply("currently working on playlist: " + request.getId());
+									request.getMessage()
+											.reply("currently working on playlist: `" + request.getId() + "`");
 									try {
 										List<DownloadResponse> results = new ArrayList<DownloadResponse>();
 										Optional<String> data = Interwebs.read(PLAYLIST + request.getId());
@@ -58,50 +59,18 @@ public class DownloadManager {
 											continue downloads;
 										}
 										JSONObject json = new JSONObject(new JSONTokener(data.get()));
-										JSONArray items = json.getJSONArray("items");
-										for (int i = 0; i < items.length(); i++) {
-											JSONObject object = items.getJSONObject(i);
-											JSONObject snippet = object.getJSONObject("snippet");
-											JSONObject resources = snippet.getJSONObject("resourceId");
-											String videoId = resources.getString("videoId");
-											File output = new File(cache.get(), videoId + ".mp3");
-											Optional<File> file = Interwebs.download(DOWNLOAD + videoId, output);
-											if (file.isPresent()) {
-												results.add(new DownloadResponse(videoId, file, Outcome.SUCCESSFUL));
-											} else {
-												results.add(new DownloadResponse(videoId, file, Outcome.FAILURE));
-											}
-										}
-										if (json.has("nextPageToken")) {
-											boolean first = true;
-											String token = json.getString("nextPageToken");
-											while (first || (token != null
-													&& !json.getString("nextPageToken").equals(token))) {
-												first = false;
-												data = Interwebs.read(PLAYLIST + request.getId() + "&pageToken="
-														+ json.getString("nextPageToken"));
-												if (!data.isPresent()) {
-													requests.remove(request);
-													continue downloads;
-												}
-												json = new JSONObject(new JSONTokener(data.get()));
-												token = json.getString("nextPageToken");
-												items = json.getJSONArray("items");
-												for (int i = 0; i < items.length(); i++) {
-													JSONObject object = items.getJSONObject(i);
-													JSONObject snippet = object.getJSONObject("snippet");
-													JSONObject resources = snippet.getJSONObject("resourceId");
-													String videoId = resources.getString("videoId");
-													File output = new File(cache.get(), videoId + ".mp3");
-													Optional<File> file = Interwebs.download(DOWNLOAD + videoId,
-															output);
-													if (file.isPresent()) {
-														results.add(new DownloadResponse(videoId, file,
-																Outcome.SUCCESSFUL));
-													} else {
-														results.add(
-																new DownloadResponse(videoId, file, Outcome.FAILURE));
-													}
+										if (json.has("videos")) {
+											JSONArray array = json.getJSONArray("videos");
+											for (int i = 0; i < array.length(); i++) {
+												String videoId = array.getString(i);
+												File output = new File(cache.get(), videoId + ".mp3");
+												Optional<File> file = Interwebs.download(DOWNLOAD + videoId, output);
+												if (file.isPresent()) {
+													results.add(new DownloadResponse(videoId, Optional.of(output),
+															Outcome.SUCCESSFUL));
+												} else {
+													results.add(new DownloadResponse(videoId, Optional.of(output),
+															Outcome.FAILURE));
 												}
 											}
 										}
@@ -112,7 +81,7 @@ public class DownloadManager {
 									requests.remove(request);
 									continue downloads;
 								} else {
-									request.getMessage().reply("currently working on: " + request.getId());
+									request.getMessage().reply("currently working on: `" + request.getId() + "`");
 
 									File output = new File(cache.get(), request.getId() + ".mp3");
 									Optional<File> file = Interwebs.download(DOWNLOAD + request.getId(), output);
@@ -143,7 +112,7 @@ public class DownloadManager {
 		this.requests.add(request);
 	}
 
-	public void stop() {
+	public void shutdown() {
 		this.running = false;
 	}
 }

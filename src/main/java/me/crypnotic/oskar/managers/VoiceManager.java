@@ -6,11 +6,15 @@ import java.util.Optional;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import me.crypnotic.oskar.Oskar;
+import me.crypnotic.oskar.OskarBootstrap;
 import me.crypnotic.oskar.objects.constants.Outcome;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.util.audio.AudioPlayer;
 
 public class VoiceManager {
+
+	private static Oskar oskar = OskarBootstrap.getOskar();
 
 	public synchronized AudioPlayer getAudioPlayer(IGuild guild) {
 		return AudioPlayer.getAudioPlayerForGuild(guild);
@@ -70,5 +74,11 @@ public class VoiceManager {
 		AudioPlayer player = getAudioPlayer(guild);
 		player.setPaused(true);
 		player.clean();
+	}
+
+	public void shutdown() {
+		oskar.getDiscord().getGuilds().forEach((guild) -> {
+			stop(guild);
+		});
 	}
 }
