@@ -45,7 +45,10 @@ public class VoiceManager {
 	public Outcome skip(IGuild guild) {
 		AudioPlayer player = getAudioPlayer(guild);
 		player.skip();
-		return Outcome.SUCCESSFUL.setMessage("skipped current track.");
+		if (player.isPaused()) {
+			player.setPaused(false);
+		}
+		return Outcome.SUCCESSFUL;
 	}
 
 	public Outcome setVolume(IGuild guild, Float volume) {
