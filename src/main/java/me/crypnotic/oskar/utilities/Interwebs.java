@@ -15,6 +15,7 @@ public class Interwebs {
 		try {
 			URL url = new URL(address);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setConnectTimeout(5000);
 			if (connection.getResponseCode() != 200) {
 				return Optional.empty();
 			}
@@ -39,6 +40,7 @@ public class Interwebs {
 			}
 			URL url = new URL(address);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setConnectTimeout(5000);
 			if (connection.getResponseCode() != 200) {
 				return Optional.empty();
 			}

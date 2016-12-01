@@ -36,19 +36,6 @@ public class PlaylistDownloadRequest implements IDownloadRequest {
 		List<String> successes = new ArrayList<>();
 		List<String> failures = new ArrayList<>();
 
-		responses.forEach((response) -> {
-			if (response.getOutcome().isSuccessful()) {
-				Outcome outcome = oskar.getVoiceManager().play(message.getGuild(), response.getValue());
-				if (outcome.isSuccessful()) {
-					successes.add(response.getVideoId());
-				} else {
-					failures.add(response.getVideoId());
-				}
-			} else {
-				failures.add(response.getVideoId());
-			}
-		});
-
 		try {
 			if (successes.size() > 0) {
 				message.reply(String.format("`%d` tracks were queued: ```%s```", successes.size(),
@@ -61,5 +48,18 @@ public class PlaylistDownloadRequest implements IDownloadRequest {
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
+
+		responses.forEach((response) -> {
+			if (response.getOutcome().isSuccessful()) {
+				Outcome outcome = oskar.getVoiceManager().play(message.getGuild(), response.getValue());
+				if (outcome.isSuccessful()) {
+					successes.add(response.getVideoId());
+				} else {
+					failures.add(response.getVideoId());
+				}
+			} else {
+				failures.add(response.getVideoId());
+			}
+		});
 	}
 }
